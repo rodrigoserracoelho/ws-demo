@@ -2,7 +2,9 @@ package io.surisoft.demo.ws.controller;
 
 import io.surisoft.demo.ws.data.WebApplication;
 import io.surisoft.demo.ws.data.Message;
+import io.surisoft.demo.ws.exception.WebApplicationSecurityException;
 import io.surisoft.demo.ws.repository.WebApplicationRepository;
+import io.surisoft.demo.ws.security.Authorization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,9 @@ public class WebSocketController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    public Authorization authorization;
+
     @MessageMapping("/${capi.ws.root.context}/{application}")
     public void send(@DestinationVariable String application, @Headers Map<String, Object> headers, Message message) {
 
@@ -46,12 +51,13 @@ public class WebSocketController {
         Optional<WebApplication> existingWebApplication = webApplicationRepository.findByName(application);
         if(existingWebApplication.isPresent()) {
             try {
-                if(isAuthorized(existingWebApplication.get(), nativeHeaders)) {
+                String token = authorization.getAuthorization(nativeHeaders);
+                if(existingWebApplication.get().isSecured() && authorization.isAuthorized(token)) {
                     messagingTemplate.convertAndSend(messageDestination, new Message(message.getFrom(), message.getText(), time));
                 } else {
                     messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "NOT AUTHORIZED", time));
                 }
-            } catch(Exception e) {
+            } catch(WebApplicationSecurityException e) {
                 log.error(e.getMessage(), e);
                 messagingTemplate.convertAndSend(messageDestination, new Message("ERROR", "ERROR", time));
             }
@@ -64,19 +70,5 @@ public class WebSocketController {
     @SendToUser("/queue/errors")
     public String handleException(Throwable exception) {
         return exception.getMessage();
-    }
-
-    public boolean isAuthorized(WebApplication webApplication, Map<String, Object> nativeHeaders) {
-        if(webApplication.isSecured()) {
-            LinkedList<String> authList = (LinkedList<String>) nativeHeaders.get("Authorization");
-            String authorization = authList.get(0);
-            if(authorization.startsWith("JJJJ")) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
     }
 }
