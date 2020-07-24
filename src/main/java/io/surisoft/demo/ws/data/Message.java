@@ -10,6 +10,7 @@ public class Message {
         this.text = text;
         this.time = time;
     }
+
     private String from;
     private String text;
     private String time;
