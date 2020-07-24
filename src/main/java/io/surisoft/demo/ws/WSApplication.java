@@ -1,6 +1,8 @@
 package io.surisoft.demo.ws;
 
-import io.surisoft.demo.ws.data.Application;
+import io.surisoft.demo.ws.data.WebApplication;
+import io.surisoft.demo.ws.repository.WebApplicationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,23 +18,26 @@ public class WSApplication {
 		SpringApplication.run(WSApplication.class, args);
 	}
 
+	@Autowired
+	private WebApplicationRepository webApplicationRepository;
+
 	@Bean
-	public List<Application> dummyApps() {
-		List<Application> dummyApps = new ArrayList<>();
+	public void dummyApps() {
 
-		Application app1 = new Application();
-		app1.setName("app1");
-		app1.setSecured(false);
+		List<WebApplication> webApplications = webApplicationRepository.findAll();
 
-		Application app2 = new Application();
-		app2.setName("app2");
-		app2.setSecured(true);
+		if(webApplications.isEmpty()) {
+			WebApplication app1 = new WebApplication();
+			app1.setName("app1");
+			app1.setSecured(false);
 
-		dummyApps.add(app1);
-		dummyApps.add(app2);
+			WebApplication app2 = new WebApplication();
+			app2.setName("app2");
+			app2.setSecured(true);
 
-		return dummyApps;
+			webApplicationRepository.save(app1);
+			webApplicationRepository.save(app2);
+
+		}
 	}
-
-
 }
