@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM openjdk:14
 VOLUME /tmp
 ADD target/ws-demo.jar app.jar
 RUN bash -c 'touch /app.jar'

@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class Message {
 
+    public Message() {
+        this(null, null, null);
+    }
+
     public Message(String from, String text, String time) {
         this.from = from;
         this.text = text;

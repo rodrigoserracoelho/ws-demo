@@ -20,7 +20,7 @@ public class ScheduledMessage {
     @Scheduled(fixedRate = 10000)
     public void sendMessage() {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        Message message =  new Message("Robot", "this is me", time);
-        template.convertAndSend("/topic/messages", message);
+        //Message message =  new Message("Robot", "this is me", time);
+        //template.convertAndSend("/topic/messages", message);
     }
 }

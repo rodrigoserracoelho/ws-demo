@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class WebApplicationAuthorization implements Authorization {
+public class WebApplicationWebSocketAuthorization implements WebSocketAuthorization {
 
     @Autowired
     private JWKSet jwkSet;

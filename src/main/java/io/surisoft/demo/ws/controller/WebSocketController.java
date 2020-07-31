@@ -4,7 +4,7 @@ import io.surisoft.demo.ws.data.WebApplication;
 import io.surisoft.demo.ws.data.Message;
 import io.surisoft.demo.ws.exception.WebApplicationSecurityException;
 import io.surisoft.demo.ws.repository.WebApplicationRepository;
-import io.surisoft.demo.ws.security.Authorization;
+import io.surisoft.demo.ws.security.WebSocketAuthorization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class WebSocketController {
     private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public Authorization authorization;
+    public WebSocketAuthorization webSocketAuthorization;
 
     @MessageMapping("/${capi.ws.root.context}/{application}")
     public void send(@DestinationVariable String application, @Headers Map<String, Object> headers, Message message) {
@@ -45,24 +45,24 @@ public class WebSocketController {
         if(headers.containsKey("nativeHeaders")) {
             nativeHeaders = (Map<String, Object>) headers.get("nativeHeaders");
         } else {
-            messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "INVALID MESSAGE", time));
+            //messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "INVALID MESSAGE", time));
         }
 
         Optional<WebApplication> existingWebApplication = webApplicationRepository.findByName(application);
         if(existingWebApplication.isPresent()) {
             try {
-                String token = authorization.getAuthorization(nativeHeaders);
-                if(existingWebApplication.get().isSecured() && authorization.isAuthorized(token)) {
-                    messagingTemplate.convertAndSend(messageDestination, new Message(message.getFrom(), message.getText(), time));
+                String token = webSocketAuthorization.getAuthorization(nativeHeaders);
+                if(existingWebApplication.get().isSecured() && webSocketAuthorization.isAuthorized(token)) {
+                    //messagingTemplate.convertAndSend(messageDestination, new Message(message.getFrom(), message.getText(), time));
                 } else {
-                    messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "NOT AUTHORIZED", time));
+                    //messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "NOT AUTHORIZED", time));
                 }
             } catch(WebApplicationSecurityException e) {
                 log.error(e.getMessage(), e);
-                messagingTemplate.convertAndSend(messageDestination, new Message("ERROR", "ERROR", time));
+                //messagingTemplate.convertAndSend(messageDestination, new Message("ERROR", "ERROR", time));
             }
         } else {
-            messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "APPLICATION: " + application + " DOES NOT EXIST", time));
+            //messagingTemplate.convertAndSend(messageDestination, new Message("BOT", "APPLICATION: " + application + " DOES NOT EXIST", time));
         }
     }
 

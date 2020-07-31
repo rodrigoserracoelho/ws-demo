@@ -1,11 +1,17 @@
 package io.surisoft.demo.ws;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
 import io.surisoft.demo.ws.data.WebApplication;
 import io.surisoft.demo.ws.exception.WebApplicationSecurityException;
 import io.surisoft.demo.ws.repository.WebApplicationRepository;
-import io.surisoft.demo.ws.security.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.CamelContext;
+import org.apache.camel.component.micrometer.DistributionStatisticConfigFilter;
+import org.apache.camel.component.micrometer.messagehistory.MicrometerMessageHistoryFactory;
+import org.apache.camel.component.micrometer.routepolicy.MicrometerRoutePolicyFactory;
+import org.apache.camel.zipkin.ZipkinTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -14,9 +20,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.okhttp3.OkHttpSender;
+
+import static org.apache.camel.component.micrometer.MicrometerConstants.DISTRIBUTION_SUMMARIES;
+import static org.apache.camel.component.micrometer.messagehistory.MicrometerMessageHistoryNamingStrategy.MESSAGE_HISTORIES;
+import static org.apache.camel.component.micrometer.routepolicy.MicrometerRoutePolicyNamingStrategy.ROUTE_POLICIES;
 
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
 
 @SpringBootApplication
@@ -59,7 +71,6 @@ public class WSApplication {
 
 			webApplicationRepository.save(app1);
 			webApplicationRepository.save(app2);
-
 		}
 	}
 }

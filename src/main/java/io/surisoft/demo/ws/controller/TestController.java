@@ -33,8 +33,8 @@ public class TestController {
         Optional<WebApplication> webApplication = webApplicationRepository.findByName(application);
         if(webApplication.isPresent()) {
             String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-            Message templateMessage =  new Message("Test Controller", message, time);
-            template.convertAndSend(topicMessagesName + application, templateMessage);
+            //Message templateMessage =  new Message("Test Controller", message, time);
+            //template.convertAndSend(topicMessagesName + application, templateMessage);
             return new ResponseEntity<>("OK", HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
